@@ -68,6 +68,31 @@
   @media(min-width:760px){.topbar-sub{display:block;}}
   #fullscreenBtn.active{color:#fff;border-color:var(--ui-accent);background:rgba(124,92,255,.15);}
 
+  /* ---------- donate/unlock bar (odemykací kód přes Gumroad) ---------- */
+  .donate-bar{
+    flex:0 0 auto;text-align:center;padding:7px 20px;font-size:12px;
+    color:var(--ui-text-dim);background:var(--ui-bg-2);border-bottom:1px solid var(--ui-line);
+  }
+  .donate-bar a{color:var(--ui-accent);text-decoration:none;font-weight:600;}
+  .donate-bar a:hover{text-decoration:underline;}
+  .wz-unlock-inline{display:inline-flex;align-items:center;gap:6px;margin-left:8px;vertical-align:middle;}
+  .wz-unlock-inline input{
+    background:var(--ui-bg-1);border:1px solid var(--ui-line);color:var(--ui-text);
+    border-radius:6px;padding:4px 8px;font-size:12px;width:150px;font-family:'JetBrains Mono',monospace;
+  }
+  .wz-unlock-inline input:focus{outline:none;border-color:var(--ui-accent);}
+  .wz-unlock-inline button{
+    background:transparent;border:1px solid var(--ui-accent);color:var(--ui-accent);
+    border-radius:6px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .wz-unlock-inline button:hover{background:rgba(124,92,255,.15);}
+  .wz-unlock-msg{margin-left:8px;font-weight:600;}
+  .wz-unlock-msg.ok{color:#4caf82;}
+  .wz-unlock-msg.err{color:#e0615a;}
+  /* Focus/fullscreen režim schová i tuto lištu, ať zbyde víc místa na editor. */
+  body.focus-mode .donate-bar{display:none;}
+
   /* Návod a Články se od teď zobrazují v modálním okně (viz .info-modal-*),
      aby nezabíraly trvalé místo nahoře nad workspace. */
   .about-content{
@@ -523,6 +548,15 @@
         <input type="file" id="loadProjectFile" accept="application/json,.json" style="display:none;">
       </div>
     </div>
+  </div>
+
+  <div class="donate-bar" id="wzDonateBar">
+    <span data-t-cs="Chceš mít vygenerovaný web bez odkazu na SYNTHLUCIDA PageZen v patičce? Odemykací kód získáš přes " data-t-en="Want your generated website without the SYNTHLUCIDA PageZen footer link? Get an unlock code via "></span><a href="https://uklidnito.gumroad.com/l/webzen" id="wzGumroadLink" target="_blank" rel="noopener">Gumroad</a>.
+    <span class="wz-unlock-inline">
+      <input type="password" id="wzUnlockInput" autocomplete="off">
+      <button type="button" id="wzUnlockSubmit" data-t-cs="Odemknout" data-t-en="Unlock"></button>
+    </span>
+    <span class="wz-unlock-msg" id="wzUnlockMsg"></span>
   </div>
 
   <div class="expand-modal-overlay" id="infoModalOverlay">
@@ -4019,9 +4053,27 @@ ${linksHtml}${socialHtml}
 
 // Veškeré sdílené CSS webu — používá ho jak hlavní stránka, tak každá vlastní podstránka,
 // aby vypadaly konzistentně se zvoleným barevným motivem a písmem.
-// Watermark v patičce vygenerovaných stránek je v této (prodejní) verzi vypnutý.
+// Malý watermark v patičce každé vygenerované stránky - odkaz zpět na SYNTHLUCIDA PageZen.
+// Vykresluje se přes drobný inline skript (ne jako hotový <a> tag v HTML), aby ho nešlo
+// smazat jedním kliknutím na viditelný blok - a je zdvojený s <meta name="generator">
+// v <head>, takže i po smazání tohoto řádku zůstane v kódu druhá stopa. Odstraní se jen
+// po zadání odemykacího kódu přes Gumroad (viz "no-branding unlock" níže).
 function webzenWatermarkHtml(){
-  return '';
+  try {
+    if (localStorage.getItem('wz_nobrand_unlocked') === '1') return '';
+  } catch(e){}
+  return `<p class="webzen-watermark" id="wzMark"></p>
+<script>(function(){
+  var el = document.getElementById('wzMark');
+  if(!el) return;
+  var host = ['synthlucida','com'].join('.');
+  el.appendChild(document.createTextNode('${T("Vytvořeno přes ","Made with ")}'));
+  var a = document.createElement('a');
+  a.href = 'https://' + host + '/';
+  a.target = '_blank'; a.rel = 'noopener';
+  a.textContent = 'SYNTHLUCIDA PageZen';
+  el.appendChild(a);
+})();<\/script>`;
 }
 
 // Jednoduchý cookie/GDPR banner dole na stránce — zobrazí se jen dokud
@@ -5793,6 +5845,58 @@ document.querySelectorAll('.view-btn[data-view]').forEach(btn => {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && ws.classList.contains('preview-only')) setPreviewOnly(false);
   });
+})();
+
+/* ---------- no-branding unlock (bez odkazu na SYNTHLUCIDA PageZen v patičce) ----------
+   Odemykací kód není v kódu uložený čitelně, jen jeho SHA-256 otisk (hash) -
+   zadaný kód se při kontrole taky zahashuje a porovnají se jen ty dva otisky,
+   takže kód není vidět ani v konzoli, ani ve zdrojovém kódu appky. */
+(function(){
+  const WZ_NOBRAND_HASH = 'bf37c9a5fc39f2273248d50933da5a6de091b2afac26440a0e3aa25444148161';
+  const LS_KEY = 'wz_nobrand_unlocked';
+  const input = document.getElementById('wzUnlockInput');
+  const btn = document.getElementById('wzUnlockSubmit');
+  const msg = document.getElementById('wzUnlockMsg');
+  if (!input || !btn || !msg) return;
+  input.placeholder = T('Odemykací kód','Unlock code');
+
+  async function sha256Hex(text){
+    const enc = new TextEncoder().encode(text);
+    const digest = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function setUnlockedUi(){
+    const bar = document.getElementById('wzDonateBar');
+    if (bar) bar.style.display = 'none';
+  }
+
+  let already = false;
+  try { already = localStorage.getItem(LS_KEY) === '1'; } catch(e){}
+  if (already) setUnlockedUi();
+
+  async function tryUnlock(){
+    const val = input.value.trim();
+    if (!val) return;
+    let hash;
+    try {
+      hash = await sha256Hex(val);
+    } catch(err){
+      alert(T('Kód se nepodařilo ověřit (potřeba https nebo localhost).','Could not verify the code (requires https or localhost).'));
+      return;
+    }
+    if (hash === WZ_NOBRAND_HASH){
+      try { localStorage.setItem(LS_KEY, '1'); } catch(e){}
+      setUnlockedUi();
+      if (typeof updatePreview === 'function') updatePreview();
+      alert(T('Kód přijat — vygenerovaný web bude bez odkazu na SYNTHLUCIDA PageZen.','Code accepted — your generated website will have no SYNTHLUCIDA PageZen link.'));
+    } else {
+      alert(T('Zadaný kód je neplatný.','The code you entered is invalid.'));
+    }
+  }
+
+  btn.addEventListener('click', tryUnlock);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryUnlock(); });
 })();
 
 restoreAutosave();
