@@ -527,6 +527,8 @@
     <div class="topbar-menu" id="topbarMenu">
       <button type="button" class="save-btn" id="topbarMenuToggle" title="Menu" aria-haspopup="true" aria-expanded="false">☰ <span class="btn-label">Menu</span></button>
       <div class="topbar-menu-list" id="topbarMenuList" role="menu">
+        <a href="#" class="menu-item" id="homeLinkBtn" role="menuitem" target="_blank" rel="noopener">🏠 <span data-t-cs="Domů" data-t-en="Home"></span></a>
+        <div class="menu-divider"></div>
         <button type="button" class="menu-item" id="exportBtn" role="menuitem">
           <span class="menu-item-title" data-t-cs="↓ Stáhnout HTML" data-t-en="↓ Download HTML"></span>
           <span class="menu-item-desc" data-t-cs="Stáhne jen hlavní stránku" data-t-en="Downloads only the main page"></span>
@@ -1645,6 +1647,13 @@ document.getElementById('privacyModalContent').innerHTML = T(PRIVACY_HTML_CS, PR
   btn.textContent = LANG === 'cs' ? '🌐 English version' : '🌐 Česká verze';
   btn.title = LANG === 'cs' ? 'Switch to English version' : 'Přepnout na českou verzi';
   btn.addEventListener('click', () => setLang(other));
+})();
+
+/* ---------- odkaz "Domů" / "Home" v menu — vede na marketingový landing web, podle jazyka appky ---------- */
+(function(){
+  const a = document.getElementById('homeLinkBtn');
+  if (!a) return;
+  a.href = T('https://synthlucida.com/landing_webzenith.html', 'https://synthlucida.com/landing_webzenith-en.html');
 })();
 
 /* ============================================================
