@@ -5907,11 +5907,32 @@ updatePreview();
 // Registrace service workera appky samotné (ne generovaných webů) — díky
 // tomu appku jde nainstalovat jako PWA a funguje i offline. Soubor sw.js
 // (viz sw.js vedle tohoto souboru).
+//
+// Auto-update: sw.js sám při instalaci volá skipWaiting() a při aktivaci
+// clients.claim() (viz sw.js), takže jakmile prohlížeč zjistí novější sw.js
+// (jiný obsah souboru), nová verze rovnou převezme kontrolu nad už otevřenou
+// stránkou. Událost "controllerchange" níže na to zareaguje jedním reloadem,
+// ať appka běží vždy na nejnovější verzi bez ručního obnovování stránky.
+// Rozpracovaná práce se přitom neztratí — appka ji průběžně ukládá do
+// localStorage (viz restoreAutosave()) a po reloadu ji sama obnoví.
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch((err) => {
+    navigator.serviceWorker.register('./sw.js').then((reg) => {
+      // Appka může zůstat otevřená dlouho (běží offline/jako balíček), takže
+      // se nespoléhá jen na vestavěnou kontrolu prohlížeče při navigaci —
+      // občas se sw.js zkontroluje i ručně.
+      reg.update().catch(() => {});
+      setInterval(() => reg.update().catch(() => {}), 60 * 60 * 1000);
+    }).catch((err) => {
       console.log(T("[SW] Registrace appky selhala:","[SW] App registration failed:"), err);
     });
+  });
+
+  let wzSwRefreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (wzSwRefreshing) return;
+    wzSwRefreshing = true;
+    location.reload();
   });
 }
 </script>
