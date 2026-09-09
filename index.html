@@ -528,6 +528,10 @@
       <button type="button" class="save-btn" id="topbarMenuToggle" title="Menu" aria-haspopup="true" aria-expanded="false">☰ <span class="btn-label">Menu</span></button>
       <div class="topbar-menu-list" id="topbarMenuList" role="menu">
         <a href="#" class="menu-item" id="homeLinkBtn" role="menuitem" target="_blank" rel="noopener">🏠 <span data-t-cs="Domů" data-t-en="Home"></span></a>
+        <a href="#" class="menu-item" id="seoCheckerLinkBtn" role="menuitem" target="_blank" rel="noopener">
+          <span class="menu-item-title" data-t-cs="🔍 SEO Checker" data-t-en="🔍 SEO Checker"></span>
+          <span class="menu-item-desc" data-t-cs="Zkontrolujte SEO svého webu zdarma" data-t-en="Check your website's SEO for free"></span>
+        </a>
         <div class="menu-divider"></div>
         <button type="button" class="menu-item" id="exportBtn" role="menuitem">
           <span class="menu-item-title" data-t-cs="↓ Stáhnout HTML" data-t-en="↓ Download HTML"></span>
@@ -1654,6 +1658,13 @@ document.getElementById('privacyModalContent').innerHTML = T(PRIVACY_HTML_CS, PR
   const a = document.getElementById('homeLinkBtn');
   if (!a) return;
   a.href = T('https://synthlucida.com/landing_webzenith.html', 'https://synthlucida.com/landing_webzenith-en.html');
+})();
+
+/* ---------- odkaz "SEO Checker" v menu — vede na Synthlucida SEOCHECKER, podle jazyka appky ---------- */
+(function(){
+  const a = document.getElementById('seoCheckerLinkBtn');
+  if (!a) return;
+  a.href = T('https://synthlucida.com/seochecker.html', 'https://synthlucida.com/seochecker-en.html');
 })();
 
 /* ============================================================
