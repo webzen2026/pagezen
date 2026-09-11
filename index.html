@@ -532,6 +532,9 @@
           <span class="menu-item-title" data-t-cs="🔍 SEO Checker" data-t-en="🔍 SEO Checker"></span>
           <span class="menu-item-desc" data-t-cs="Zkontrolujte SEO svého webu zdarma" data-t-en="Check your website's SEO for free"></span>
         </a>
+        <a href="#" class="menu-item" id="domainCheckerLinkBtn" role="menuitem" target="_blank" rel="noopener">
+          <span class="menu-item-title" data-t-cs="🔎 Vyhledávač volných domén" data-t-en="🔎 Free Domain Checker"></span>
+        </a>
         <div class="menu-divider"></div>
         <button type="button" class="menu-item" id="exportBtn" role="menuitem">
           <span class="menu-item-title" data-t-cs="↓ Stáhnout HTML" data-t-en="↓ Download HTML"></span>
@@ -1665,6 +1668,13 @@ document.getElementById('privacyModalContent').innerHTML = T(PRIVACY_HTML_CS, PR
   const a = document.getElementById('seoCheckerLinkBtn');
   if (!a) return;
   a.href = T('https://synthlucida.com/seochecker.html', 'https://synthlucida.com/seochecker-en.html');
+})();
+
+/* ---------- odkaz "Vyhledávač volných domén" v menu — vede na Synthlucida WEBZEN-DOMENY, podle jazyka appky ---------- */
+(function(){
+  const a = document.getElementById('domainCheckerLinkBtn');
+  if (!a) return;
+  a.href = T('https://synthlucida.com/webzen-domeny.html', 'https://synthlucida.com/webzen-domains-en.html');
 })();
 
 /* ============================================================
