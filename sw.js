@@ -9,7 +9,7 @@
 // serving the old cached version.
 // ==========================================
 
-const CACHE_NAME = 'pagezen-v10';
+const CACHE_NAME = 'pagezen-v20';
 
 const ASSETS_TO_CACHE = [
   './',
