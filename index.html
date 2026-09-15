@@ -558,6 +558,8 @@
         <a href="#" class="menu-item" id="domainCheckerLinkBtn" role="menuitem" target="_blank" rel="noopener">
           <span class="menu-item-title" data-t-cs="🔎 Vyhledávač volných domén" data-t-en="🔎 Free Domain Checker"></span>
         </a>
+        <a href="#" class="menu-item" id="xtallyDocsLinkBtn" role="menuitem" target="_blank" rel="noopener">📄 <span data-t-cs="Xtally Dokumenty" data-t-en="Xtally Documents"></span></a>
+        <a href="#" class="menu-item" id="xtallySheetsLinkBtn" role="menuitem" target="_blank" rel="noopener">📊 <span data-t-cs="Xtally Tabulky" data-t-en="Xtally Sheets"></span></a>
         <div class="menu-divider"></div>
         <button type="button" class="menu-item" id="exportBtn" role="menuitem">
           <span class="menu-item-title" data-t-cs="↓ Stáhnout HTML" data-t-en="↓ Download HTML"></span>
@@ -1752,6 +1754,20 @@ document.getElementById('privacyModalContent').innerHTML = T(PRIVACY_HTML_CS, PR
   const a = document.getElementById('domainCheckerLinkBtn');
   if (!a) return;
   a.href = T('https://synthlucida.com/webzen-domeny.html', 'https://synthlucida.com/webzen-domains-en.html');
+})();
+
+/* ---------- odkaz "Xtally Dokumenty/Documents" v menu — vede na Xtally Documents appku, podle jazyka appky ---------- */
+(function(){
+  const a = document.getElementById('xtallyDocsLinkBtn');
+  if (!a) return;
+  a.href = T('https://webzen2026.github.io/xtally/?lang=cs', 'https://webzen2026.github.io/xtally/?lang=en');
+})();
+
+/* ---------- odkaz "Xtally Tabulky/Sheets" v menu — vede na Xtally Sheets appku, podle jazyka appky ---------- */
+(function(){
+  const a = document.getElementById('xtallySheetsLinkBtn');
+  if (!a) return;
+  a.href = T('https://webzen2026.github.io/xtally-sheets/?lang=cs', 'https://webzen2026.github.io/xtally-sheets/?lang=en');
 })();
 
 /* ============================================================
